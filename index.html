@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>점심 메뉴 룰렛</title>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      background: linear-gradient(135deg, #fff7ed, #ffedd5);
+      color: #222;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .header {
+      margin-bottom: 20px;
+    }
+    .header h1 {
+      margin: 0 0 8px;
+      font-size: 36px;
+    }
+    .header p {
+      margin: 0;
+      color: #666;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 24px;
+    }
+    .card {
+      background: rgba(255,255,255,0.9);
+      border: 1px solid #fed7aa;
+      border-radius: 24px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+      padding: 20px;
+    }
+    .section-title {
+      margin: 0 0 12px;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .input-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    input {
+      flex: 1;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid #fdba74;
+      font-size: 15px;
+    }
+    button {
+      border: none;
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .primary {
+      background: #f97316;
+      color: white;
+    }
+    .secondary {
+      background: white;
+      border: 1px solid #fdba74;
+      color: #333;
+    }
+    .danger {
+      background: #fff1f2;
+      border: 1px solid #fecdd3;
+      color: #e11d48;
+    }
+    .chips, .menu-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .chip, .menu-item {
+      background: white;
+      border: 1px solid #fdba74;
+      border-radius: 999px;
+      padding: 8px 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .remove-btn {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      padding: 0;
+      background: #ffe4e6;
+      color: #e11d48;
+      font-size: 12px;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .stat {
+      background: white;
+      border: 1px solid #fdba74;
+      border-radius: 16px;
+      padding: 14px;
+    }
+    .stat-label {
+      color: #777;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+    .stat-value {
+      font-size: 22px;
+      font-weight: 800;
+    }
+    .wheel-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+    }
+    .wheel-box {
+      position: relative;
+      width: min(80vw, 500px);
+      aspect-ratio: 1 / 1;
+    }
+    .pointer {
+      position: absolute;
+      top: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 18px solid transparent;
+      border-right: 18px solid transparent;
+      border-top: 34px solid #111827;
+      z-index: 5;
+    }
+    #wheelCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      transform-origin: center center;
+    }
+    .center-dot {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 84px;
+      height: 84px;
+      border-radius: 50%;
+      background: white;
+      border: 8px solid #fdba74;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      z-index: 4;
+      text-align: center;
+      line-height: 1.1;
+    }
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .result {
+      width: 100%;
+      background: white;
+      border: 1px solid #fdba74;
+      border-radius: 20px;
+      padding: 20px;
+    }
+    .popup-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(17, 24, 39, 0.32);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      padding: 20px;
+    }
+    .popup-overlay.show {
+      display: flex;
+    }
+    .popup {
+      width: min(420px, 100%);
+      background: white;
+      border: 1px solid #fdba74;
+      border-radius: 24px;
+      box-shadow: 0 18px 50px rgba(0,0,0,0.18);
+      padding: 24px;
+      text-align: center;
+      transform: scale(0.9);
+      opacity: 0;
+    }
+    .popup-emoji {
+      font-size: 42px;
+      margin-bottom: 8px;
+    }
+    .popup-title {
+      margin: 0 0 10px;
+      font-size: 28px;
+      font-weight: 900;
+    }
+    .popup-desc {
+      margin: 0 0 18px;
+      color: #666;
+      line-height: 1.5;
+    }
+    .popup-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .confetti-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 60;
+    }
+    .confetti-piece {
+      position: absolute;
+      top: -20px;
+      width: 10px;
+      height: 16px;
+      opacity: 0.95;
+      border-radius: 2px;
+      animation: confetti-fall linear forwards;
+    }
+    @keyframes confetti-fall {
+      0% {
+        transform: translate3d(0, 0, 0) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translate3d(var(--confetti-x, 0px), 110vh, 0) rotate(720deg);
+        opacity: 0;
+      }
+    }
+    .result-label {
+      color: #777;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+    .result-value {
+      font-size: 34px;
+      font-weight: 900;
+      margin: 0 0 8px;
+    }
+    .result-desc {
+      margin: 0;
+      color: #666;
+    }
+    .status {
+      color: #666;
+      font-size: 13px;
+      min-height: 18px;
+    }
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>점심 메뉴 룰렛</h1>
+      <p>메뉴를 추가하고 룰렛을 돌려서 오늘 점심을 정해보세요.</p>
+    </div>
+
+    <div class="layout">
+      <div class="card">
+        <h2 class="section-title">메뉴 추가</h2>
+        <div class="input-row">
+          <input id="menuInput" type="text" placeholder="예: 김치찌개" maxlength="18" />
+          <button id="addBtn" class="primary" type="button">추가</button>
+        </div>
+
+        <h3 class="section-title">빠른 추가</h3>
+        <div id="quickChips" class="chips"></div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin:18px 0 12px;gap:12px;">
+          <h3 class="section-title" style="margin:0;">현재 메뉴</h3>
+          <button id="clearBtn" class="danger" type="button">전체 삭제</button>
+        </div>
+        <div id="menuList" class="menu-list"></div>
+
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-label">등록된 메뉴</div>
+            <div id="menuCount" class="stat-value">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">마지막 결과</div>
+            <div id="lastPick" class="stat-value">-</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card wheel-wrap">
+        <div class="wheel-box">
+          <div class="pointer"></div>
+          <canvas id="wheelCanvas" width="500" height="500"></canvas>
+          <div class="center-dot">LUNCH<br>GO</div>
+        </div>
+
+        <div class="actions">
+          <button id="spinBtn" class="primary" type="button">🎯 룰렛 돌리기</button>
+          <button id="shuffleBtn" class="secondary" type="button">메뉴 섞기</button>
+        </div>
+
+        <div id="status" class="status"></div>
+
+        <div class="result">
+          <div class="result-label">오늘의 추천 메뉴</div>
+          <h2 id="resultValue" class="result-value">룰렛을 돌려보세요</h2>
+          <p id="resultDesc" class="result-desc">메뉴를 2개 이상 넣으면 룰렛을 돌릴 수 있어요.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const quickMenus = ["김치찌개", "돈까스", "제육볶음", "쌀국수", "초밥", "파스타", "햄버거", "마라탕", "비빔밥", "국밥"];
+      const colors = ["#fdba74", "#fde68a", "#86efac", "#93c5fd", "#c4b5fd", "#f9a8d4", "#fca5a5", "#67e8f9"];
+
+      const state = {
+        menus: ["김치찌개", "돈까스", "쌀국수", "초밥", "제육볶음", "파스타"],
+        rotation: 0,
+        spinning: false,
+        lastPick: ""
+      };
+
+      const menuInput = document.getElementById("menuInput");
+      const addBtn = document.getElementById("addBtn");
+      const clearBtn = document.getElementById("clearBtn");
+      const spinBtn = document.getElementById("spinBtn");
+      const shuffleBtn = document.getElementById("shuffleBtn");
+      const quickChips = document.getElementById("quickChips");
+      const menuList = document.getElementById("menuList");
+      const menuCount = document.getElementById("menuCount");
+      const lastPick = document.getElementById("lastPick");
+      const resultValue = document.getElementById("resultValue");
+      const resultDesc = document.getElementById("resultDesc");
+      const status = document.getElementById("status");
+      const popupOverlay = document.getElementById("popupOverlay");
+      const popupCard = document.getElementById("popupCard");
+      const popupDesc = document.getElementById("popupDesc");
+      const closePopupBtn = document.getElementById("closePopupBtn");
+      const spinAgainBtn = document.getElementById("spinAgainBtn");
+      const confettiLayer = document.getElementById("confettiLayer");
+      const canvas = document.getElementById("wheelCanvas");
+      const ctx = canvas.getContext("2d");
+
+      function setStatus(text) {
+        status.textContent = text;
+      }
+
+      function hasGsap() {
+        return typeof window.gsap !== "undefined";
+      }
+
+      function animateSpin(targetRotation, onComplete) {
+        if (hasGsap()) {
+          gsap.to(canvas, {
+            rotation: targetRotation,
+            duration: 4.5,
+            ease: "power4.out",
+            onUpdate: function () {
+              state.rotation = Number(gsap.getProperty(canvas, "rotation")) || 0;
+            },
+            onComplete: onComplete
+          });
+          return;
+        }
+
+        const start = performance.now();
+        const startRotation = state.rotation;
+        const duration = 4500;
+
+        function frame(now) {
+          const t = Math.min((now - start) / duration, 1);
+          const eased = 1 - Math.pow(1 - t, 4);
+          state.rotation = startRotation + (targetRotation - startRotation) * eased;
+          canvas.style.transform = `rotate(${state.rotation}deg)`;
+          if (t < 1) requestAnimationFrame(frame);
+          else onComplete();
+        }
+        requestAnimationFrame(frame);
+      }
+
+      function popResult() {
+        if (hasGsap()) {
+          gsap.fromTo(resultValue, { scale: 0.85, opacity: 0.4, y: 10 }, { scale: 1, opacity: 1, y: 0, duration: 0.45, ease: "back.out(1.7)" });
+        }
+      }
+
+      function shakeInput() {
+        if (hasGsap()) {
+          gsap.fromTo(menuInput, { x: -6 }, { x: 6, duration: 0.05, repeat: 5, yoyo: true, clearProps: "x" });
+        }
+      }
+
+      function normalize(deg) {
+        let v = deg % 360;
+        if (v < 0) v += 360;
+        return v;
+      }
+
+      function save() {
+        localStorage.setItem("lunch-roulette-menus", JSON.stringify(state.menus));
+        localStorage.setItem("lunch-roulette-last", state.lastPick || "");
+      }
+
+      function load() {
+        try {
+          const savedMenus = JSON.parse(localStorage.getItem("lunch-roulette-menus") || "null");
+          const savedLast = localStorage.getItem("lunch-roulette-last") || "";
+          if (Array.isArray(savedMenus) && savedMenus.length) state.menus = savedMenus;
+          if (savedLast) state.lastPick = savedLast;
+        } catch (e) {
+          console.warn(e);
+        }
+      }
+
+      function drawWheel() {
+        const w = canvas.width;
+        const h = canvas.height;
+        const cx = w / 2;
+        const cy = h / 2;
+        const radius = 220;
+        ctx.clearRect(0, 0, w, h);
+
+        if (!state.menus.length) {
+          ctx.beginPath();
+          ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+          ctx.fillStyle = "#fff";
+          ctx.fill();
+          ctx.strokeStyle = "#fdba74";
+          ctx.lineWidth = 8;
+          ctx.stroke();
+          return;
+        }
+
+        const arc = (Math.PI * 2) / state.menus.length;
+
+        state.menus.forEach((menu, i) => {
+          const start = -Math.PI / 2 + i * arc;
+          const end = start + arc;
+
+          ctx.beginPath();
+          ctx.moveTo(cx, cy);
+          ctx.arc(cx, cy, radius, start, end);
+          ctx.closePath();
+          ctx.fillStyle = colors[i % colors.length];
+          ctx.fill();
+          ctx.strokeStyle = "#fff";
+          ctx.lineWidth = 4;
+          ctx.stroke();
+
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.rotate(start + arc / 2);
+          ctx.textAlign = "right";
+          ctx.fillStyle = "#222";
+          ctx.font = "bold 20px Arial";
+          const label = menu.length > 9 ? menu.slice(0, 9) + "…" : menu;
+          ctx.fillText(label, radius - 20, 8);
+          ctx.restore();
+        });
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius + 2, 0, Math.PI * 2);
+        ctx.strokeStyle = "#fff";
+        ctx.lineWidth = 8;
+        ctx.stroke();
+      }
+
+      function renderQuickMenus() {
+        quickChips.innerHTML = "";
+        quickMenus.forEach((menu) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "chip";
+          btn.textContent = "+ " + menu;
+          btn.addEventListener("click", function () { addMenu(menu); });
+          quickChips.appendChild(btn);
+        });
+      }
+
+      function renderMenuList() {
+        menuList.innerHTML = "";
+        state.menus.forEach((menu, index) => {
+          const item = document.createElement("div");
+          item.className = "menu-item";
+
+          const text = document.createElement("span");
+          text.textContent = menu;
+
+          const remove = document.createElement("button");
+          remove.type = "button";
+          remove.className = "remove-btn";
+          remove.textContent = "×";
+          remove.addEventListener("click", function () {
+            state.menus.splice(index, 1);
+            render();
+          });
+
+          item.appendChild(text);
+          item.appendChild(remove);
+          menuList.appendChild(item);
+        });
+      }
+
+      function render() {
+        renderMenuList();
+        menuCount.textContent = String(state.menus.length);
+        lastPick.textContent = state.lastPick || "-";
+        spinBtn.disabled = state.menus.length < 2 || state.spinning;
+        spinBtn.style.opacity = spinBtn.disabled ? "0.5" : "1";
+        drawWheel();
+        save();
+      }
+
+      function addMenu(value) {
+        const menu = String(value || menuInput.value).trim();
+        if (!menu) return;
+        if (state.menus.some((m) => m.toLowerCase() === menu.toLowerCase())) {
+          shakeInput();
+          setStatus("같은 메뉴는 한 번만 추가할 수 있어요.");
+          menuInput.value = "";
+          return;
+        }
+        state.menus.push(menu);
+        menuInput.value = "";
+        setStatus("");
+        render();
+      }
+
+      function shuffleMenus() {
+        if (state.spinning) return;
+        for (let i = state.menus.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          const temp = state.menus[i];
+          state.menus[i] = state.menus[j];
+          state.menus[j] = temp;
+        }
+        render();
+      }
+
+      function getWinnerIndex(rotation) {
+        const count = state.menus.length;
+        const slice = 360 / count;
+        const normalized = normalize(rotation);
+        const pointerAngle = (360 - normalized) % 360;
+        return Math.floor(pointerAngle / slice) % count;
+      }
+
+      function spin() {
+        if (state.spinning || state.menus.length < 2) return;
+
+        state.spinning = true;
+        render();
+        resultValue.textContent = "돌리는 중...";
+        resultDesc.textContent = "오늘 점심 운명을 정하는 중입니다.";
+        setStatus(hasGsap() ? "GSAP 애니메이션 실행 중" : "기본 애니메이션 실행 중");
+
+        const count = state.menus.length;
+        const targetIndex = Math.floor(Math.random() * count);
+        const slice = 360 / count;
+        const stopAt = 360 - (targetIndex * slice + slice / 2);
+        const extra = 360 * (5 + Math.floor(Math.random() * 3));
+        const targetRotation = state.rotation + extra + stopAt;
+
+        animateSpin(targetRotation, function () {
+          state.rotation = normalize(targetRotation);
+          canvas.style.transform = `rotate(${state.rotation}deg)`;
+
+          const winnerIndex = getWinnerIndex(state.rotation);
+          const winner = state.menus[winnerIndex];
+          state.lastPick = winner;
+          state.spinning = false;
+
+          resultValue.textContent = winner;
+          resultDesc.textContent = `오늘 점심은 ${winner} 어떠세요?`;
+          popResult();
+          setStatus("선택 완료");
+          render();
+        });
+      }
+
+      function launchConfetti() {
+        const palette = ["#f97316", "#fb7185", "#38bdf8", "#22c55e", "#facc15", "#a78bfa"];
+        confettiLayer.innerHTML = "";
+        for (let i = 0; i < 90; i += 1) {
+          const piece = document.createElement("div");
+          piece.className = "confetti-piece";
+          piece.style.left = Math.random() * 100 + "vw";
+          piece.style.background = palette[Math.floor(Math.random() * palette.length)];
+          piece.style.animationDuration = (2.2 + Math.random() * 1.6) + "s";
+          piece.style.animationDelay = (Math.random() * 0.25) + "s";
+          piece.style.setProperty("--confetti-x", (Math.random() * 220 - 110) + "px");
+          confettiLayer.appendChild(piece);
+        }
+        window.setTimeout(function () {
+          confettiLayer.innerHTML = "";
+        }, 4200);
+      }
+
+      function openPopup(menu) {
+        popupDesc.textContent = `오늘 점심은 ${menu}입니다. 맛있게 드세요!`;
+        popupOverlay.classList.add("show");
+        popupOverlay.setAttribute("aria-hidden", "false");
+        if (hasGsap()) {
+          gsap.fromTo(popupCard, { scale: 0.9, opacity: 0, y: 16 }, { scale: 1, opacity: 1, y: 0, duration: 0.35, ease: "back.out(1.7)" });
+        } else {
+          popupCard.style.opacity = "1";
+          popupCard.style.transform = "scale(1)";
+        }
+      }
+
+      function closePopup() {
+        popupOverlay.classList.remove("show");
+        popupOverlay.setAttribute("aria-hidden", "true");
+      }
+
+      function runTests() {
+        console.assert(normalize(725) === 5, "normalize test failed");
+        console.assert(normalize(-90) === 270, "negative normalize test failed");
+        console.assert(getWinnerIndex(0) >= 0, "winner index should be valid");
+        const before = state.menus.length;
+        addMenu("김치찌개");
+        console.assert(state.menus.length === before, "duplicate menu should not be added");
+        closePopup();
+      }
+
+      addBtn.addEventListener("click", function () { addMenu(); });
+      menuInput.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") addMenu();
+      });
+      clearBtn.addEventListener("click", function () {
+        if (state.spinning) return;
+        state.menus = [];
+        state.lastPick = "";
+        resultValue.textContent = "룰렛을 돌려보세요";
+        resultDesc.textContent = "메뉴를 2개 이상 넣으면 룰렛을 돌릴 수 있어요.";
+        setStatus("");
+        render();
+      });
+      shuffleBtn.addEventListener("click", shuffleMenus);
+      spinBtn.addEventListener("click", spin);
+
+      load();
+      renderQuickMenus();
+      render();
+      runTests();
+      setStatus(hasGsap() ? "준비 완료: GSAP 연결됨" : "준비 완료: 기본 애니메이션 사용");
+    })();
+  </script>
+</body>
+</html>
