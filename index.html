@@ -18,24 +18,16 @@
       margin: 0 auto;
       padding: 24px;
     }
-    .header {
-      margin-bottom: 20px;
-    }
-    .header h1 {
-      margin: 0 0 8px;
-      font-size: 36px;
-    }
-    .header p {
-      margin: 0;
-      color: #666;
-    }
+    .header { margin-bottom: 20px; }
+    .header h1 { margin: 0 0 8px; font-size: 36px; }
+    .header p { margin: 0; color: #666; }
     .layout {
       display: grid;
       grid-template-columns: 360px 1fr;
       gap: 24px;
     }
     .card {
-      background: rgba(255,255,255,0.9);
+      background: rgba(255,255,255,0.92);
       border: 1px solid #fed7aa;
       border-radius: 24px;
       box-shadow: 0 12px 30px rgba(0,0,0,0.08);
@@ -57,6 +49,11 @@
       border-radius: 14px;
       border: 1px solid #fdba74;
       font-size: 15px;
+      outline: none;
+    }
+    input:focus {
+      border-color: #f97316;
+      box-shadow: 0 0 0 3px rgba(249,115,22,0.12);
     }
     button {
       border: none;
@@ -66,20 +63,9 @@
       font-weight: 700;
       cursor: pointer;
     }
-    .primary {
-      background: #f97316;
-      color: white;
-    }
-    .secondary {
-      background: white;
-      border: 1px solid #fdba74;
-      color: #333;
-    }
-    .danger {
-      background: #fff1f2;
-      border: 1px solid #fecdd3;
-      color: #e11d48;
-    }
+    .primary { background: #f97316; color: white; }
+    .secondary { background: white; border: 1px solid #fdba74; color: #333; }
+    .danger { background: #fff1f2; border: 1px solid #fecdd3; color: #e11d48; }
     .chips, .menu-list {
       display: flex;
       flex-wrap: wrap;
@@ -102,6 +88,10 @@
       background: #ffe4e6;
       color: #e11d48;
       font-size: 12px;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
     .stats {
       display: grid;
@@ -115,15 +105,8 @@
       border-radius: 16px;
       padding: 14px;
     }
-    .stat-label {
-      color: #777;
-      font-size: 13px;
-      margin-bottom: 6px;
-    }
-    .stat-value {
-      font-size: 22px;
-      font-weight: 800;
-    }
+    .stat-label { color: #777; font-size: 13px; margin-bottom: 6px; }
+    .stat-value { font-size: 22px; font-weight: 800; }
     .wheel-wrap {
       display: flex;
       flex-direction: column;
@@ -177,15 +160,57 @@
       flex-wrap: wrap;
       justify-content: center;
     }
-    .result {
+    .status {
+      color: #666;
+      font-size: 13px;
+      min-height: 18px;
       width: 100%;
-      background: white;
-      border: 1px solid #fdba74;
-      border-radius: 20px;
-      padding: 20px;
+      text-align: center;
+    }
+    .confetti-box {
+      position: relative;
+      width: 100%;
+      min-height: 180px;
+      border-radius: 22px;
+      overflow: hidden;
+      background: linear-gradient(180deg, rgba(255,247,237,0.95) 0%, rgba(255,255,255,0.9) 100%);
+      border: 1px dashed #fdba74;
+    }
+    .confetti-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 1;
+    }
+    .emoji-fall {
+      position: absolute;
+      top: -40px;
+      font-size: 22px;
+      opacity: 0.95;
+      user-select: none;
+      animation: emoji-fall linear forwards;
+      will-change: transform, opacity;
+    }
+    @keyframes emoji-fall {
+      0% {
+        transform: translate3d(0, -10px, 0) rotate(0deg) scale(1);
+        opacity: 0;
+      }
+      10% { opacity: 1; }
+      50% {
+        transform: translate3d(calc(var(--drift, 0px) * 0.6), 80px, 0) rotate(180deg) scale(1);
+      }
+      100% {
+        transform: translate3d(var(--drift, 0px), var(--fall-distance, 200px), 0) rotate(360deg) scale(0.95);
+        opacity: 0;
+      }
     }
     .celebration-banner {
-      width: 100%;
+      position: relative;
+      z-index: 2;
+      margin: 16px;
+      width: calc(100% - 32px);
       display: none;
       align-items: center;
       justify-content: space-between;
@@ -194,24 +219,16 @@
       border: 1px solid #fdba74;
       border-radius: 20px;
       padding: 18px 20px;
-      box-shadow: 0 10px 24px rgba(249, 115, 22, 0.12);
+      box-shadow: 0 10px 24px rgba(249,115,22,0.12);
     }
-    .celebration-banner.show {
-      display: flex;
-    }
+    .celebration-banner.show { display: flex; }
     .celebration-main {
       display: flex;
       align-items: center;
       gap: 14px;
       min-width: 0;
     }
-    .celebration-emoji {
-      font-size: 34px;
-      flex-shrink: 0;
-    }
-    .celebration-text {
-      min-width: 0;
-    }
+    .celebration-emoji { font-size: 34px; flex-shrink: 0; }
     .celebration-title {
       margin: 0 0 4px;
       font-size: 22px;
@@ -229,60 +246,26 @@
       flex-wrap: wrap;
       justify-content: flex-end;
     }
-    .confetti-box {
-      position: relative;
+    .result {
       width: 100%;
-      min-height: 180px;
-      border-radius: 22px;
-      overflow: hidden;
-      background: linear-gradient(180deg, rgba(255,247,237,0.95) 0%, rgba(255,255,255,0.9) 100%);
-      border: 1px dashed #fdba74;
+      background: white;
+      border: 1px solid #fdba74;
+      border-radius: 20px;
+      padding: 20px;
     }
-    .confetti-layer {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      overflow: hidden;
-      z-index: 2;
+    .result-label {
+      color: #777;
+      font-size: 14px;
+      margin-bottom: 8px;
     }
-    .confetti-emoji {
-      position: absolute;
-      top: -40px;
-      font-size: 22px;
-      opacity: 0.95;
-      animation: emoji-fall linear forwards;
-      will-change: transform, opacity;
-      user-select: none;
+    .result-value {
+      font-size: 34px;
+      font-weight: 900;
+      margin: 0 0 8px;
     }
-    @keyframes emoji-fall {
-      0% {
-        transform: translate3d(0, -10px, 0) rotate(0deg) scale(1);
-        opacity: 0;
-      }
-      10% { opacity: 1; }
-      50% {
-        transform: translate3d(calc(var(--drift, 0px) * 0.6), 80px, 0) rotate(180deg) scale(1);
-      }
-      100% {
-        transform: translate3d(var(--drift, 0px), var(--fall-distance, 200px), 0) rotate(360deg) scale(0.95);
-        opacity: 0;
-      }
-    }
-      10% {
-        opacity: 1;
-      }
-      50% {
-        transform: translate3d(calc(var(--drift, 0px) * 0.55), 70px, 0) rotate(220deg) scale(1);
-      }
-      100% {
-        transform: translate3d(var(--drift, 0px), var(--fall-distance, 180px), 0) rotate(540deg) scale(0.9);
-        opacity: 0;
-      }
-    }
-    .status {
+    .result-desc {
+      margin: 0;
       color: #666;
-      font-size: 13px;
-      min-height: 18px;
     }
     @media (max-width: 900px) {
       .layout { grid-template-columns: 1fr; }
@@ -337,7 +320,7 @@
         <div class="wheel-box">
           <div class="pointer"></div>
           <canvas id="wheelCanvas" width="500" height="500"></canvas>
-          <div class="center-dot">LUNCH<br>GO</div>
+          <div class="center-dot">LUNCH<br />GO</div>
         </div>
 
         <div class="actions">
@@ -349,10 +332,10 @@
 
         <div class="confetti-box">
           <div id="confettiLayer" class="confetti-layer" aria-hidden="true"></div>
-          <div id="celebrationBanner" class="celebration-banner" aria-live="polite" style="position:relative; z-index:3; margin:16px; width:calc(100% - 32px);">
+          <div id="celebrationBanner" class="celebration-banner" aria-live="polite">
             <div class="celebration-main">
               <div class="celebration-emoji">🎉</div>
-              <div class="celebration-text">
+              <div>
                 <h3 class="celebration-title">오늘 점심 결정!</h3>
                 <p id="celebrationDesc" class="celebration-desc">결과가 나오면 여기에 표시됩니다.</p>
               </div>
@@ -377,6 +360,7 @@
     (function () {
       const quickMenus = ["김치찌개", "돈까스", "제육볶음", "쌀국수", "초밥", "파스타", "햄버거", "마라탕", "비빔밥", "국밥"];
       const colors = ["#fdba74", "#fde68a", "#86efac", "#93c5fd", "#c4b5fd", "#f9a8d4", "#fca5a5", "#67e8f9"];
+      const fallingEmojis = ["🎉", "✨", "🍔", "🍜", "🍣", "🍕", "🥗", "🌮", "🍛", "🍱", "🍗", "🍝"];
 
       const state = {
         menus: ["김치찌개", "돈까스", "쌀국수", "초밥", "제육볶음", "파스타"],
@@ -436,15 +420,23 @@
           const eased = 1 - Math.pow(1 - t, 4);
           state.rotation = startRotation + (targetRotation - startRotation) * eased;
           canvas.style.transform = `rotate(${state.rotation}deg)`;
-          if (t < 1) requestAnimationFrame(frame);
-          else onComplete();
+          if (t < 1) {
+            requestAnimationFrame(frame);
+          } else {
+            onComplete();
+          }
         }
+
         requestAnimationFrame(frame);
       }
 
       function popResult() {
         if (hasGsap()) {
-          gsap.fromTo(resultValue, { scale: 0.85, opacity: 0.4, y: 10 }, { scale: 1, opacity: 1, y: 0, duration: 0.45, ease: "back.out(1.7)" });
+          gsap.fromTo(
+            resultValue,
+            { scale: 0.85, opacity: 0.4, y: 10 },
+            { scale: 1, opacity: 1, y: 0, duration: 0.45, ease: "back.out(1.7)" }
+          );
         }
       }
 
@@ -455,9 +447,9 @@
       }
 
       function normalize(deg) {
-        let v = deg % 360;
-        if (v < 0) v += 360;
-        return v;
+        let value = deg % 360;
+        if (value < 0) value += 360;
+        return value;
       }
 
       function save() {
@@ -469,20 +461,25 @@
         try {
           const savedMenus = JSON.parse(localStorage.getItem("lunch-roulette-menus") || "null");
           const savedLast = localStorage.getItem("lunch-roulette-last") || "";
-          if (Array.isArray(savedMenus) && savedMenus.length) state.menus = savedMenus;
-          if (savedLast) state.lastPick = savedLast;
-        } catch (e) {
-          console.warn(e);
+          if (Array.isArray(savedMenus) && savedMenus.length) {
+            state.menus = savedMenus;
+          }
+          if (savedLast) {
+            state.lastPick = savedLast;
+          }
+        } catch (error) {
+          console.warn(error);
         }
       }
 
       function drawWheel() {
-        const w = canvas.width;
-        const h = canvas.height;
-        const cx = w / 2;
-        const cy = h / 2;
+        const width = canvas.width;
+        const height = canvas.height;
+        const cx = width / 2;
+        const cy = height / 2;
         const radius = 220;
-        ctx.clearRect(0, 0, w, h);
+
+        ctx.clearRect(0, 0, width, height);
 
         if (!state.menus.length) {
           ctx.beginPath();
@@ -497,15 +494,15 @@
 
         const arc = (Math.PI * 2) / state.menus.length;
 
-        state.menus.forEach((menu, i) => {
-          const start = -Math.PI / 2 + i * arc;
+        state.menus.forEach(function (menu, index) {
+          const start = -Math.PI / 2 + index * arc;
           const end = start + arc;
 
           ctx.beginPath();
           ctx.moveTo(cx, cy);
           ctx.arc(cx, cy, radius, start, end);
           ctx.closePath();
-          ctx.fillStyle = colors[i % colors.length];
+          ctx.fillStyle = colors[index % colors.length];
           ctx.fill();
           ctx.strokeStyle = "#fff";
           ctx.lineWidth = 4;
@@ -531,19 +528,21 @@
 
       function renderQuickMenus() {
         quickChips.innerHTML = "";
-        quickMenus.forEach((menu) => {
+        quickMenus.forEach(function (menu) {
           const btn = document.createElement("button");
           btn.type = "button";
           btn.className = "chip";
           btn.textContent = "+ " + menu;
-          btn.addEventListener("click", function () { addMenu(menu); });
+          btn.addEventListener("click", function () {
+            addMenu(menu);
+          });
           quickChips.appendChild(btn);
         });
       }
 
       function renderMenuList() {
         menuList.innerHTML = "";
-        state.menus.forEach((menu, index) => {
+        state.menus.forEach(function (menu, index) {
           const item = document.createElement("div");
           item.className = "menu-item";
 
@@ -578,12 +577,18 @@
       function addMenu(value) {
         const menu = String(value || menuInput.value).trim();
         if (!menu) return;
-        if (state.menus.some((m) => m.toLowerCase() === menu.toLowerCase())) {
+
+        const exists = state.menus.some(function (item) {
+          return item.toLowerCase() === menu.toLowerCase();
+        });
+
+        if (exists) {
           shakeInput();
           setStatus("같은 메뉴는 한 번만 추가할 수 있어요.");
           menuInput.value = "";
           return;
         }
+
         state.menus.push(menu);
         menuInput.value = "";
         setStatus("");
@@ -592,7 +597,7 @@
 
       function shuffleMenus() {
         if (state.spinning) return;
-        for (let i = state.menus.length - 1; i > 0; i--) {
+        for (let i = state.menus.length - 1; i > 0; i -= 1) {
           const j = Math.floor(Math.random() * (i + 1));
           const temp = state.menus[i];
           state.menus[i] = state.menus[j];
@@ -607,6 +612,48 @@
         const normalized = normalize(rotation);
         const pointerAngle = (360 - normalized) % 360;
         return Math.floor(pointerAngle / slice) % count;
+      }
+
+      function launchEmojiRain() {
+        if (!confettiLayer) return;
+        confettiLayer.innerHTML = "";
+        const box = confettiLayer.getBoundingClientRect();
+        const width = Math.max(box.width, 260);
+        const height = Math.max(box.height, 180);
+
+        for (let i = 0; i < 36; i += 1) {
+          const piece = document.createElement("span");
+          piece.className = "emoji-fall";
+          piece.textContent = fallingEmojis[Math.floor(Math.random() * fallingEmojis.length)];
+          piece.style.left = Math.random() * (width - 24) + "px";
+          piece.style.animationDuration = (2.6 + Math.random() * 2.4) + "s";
+          piece.style.animationDelay = (Math.random() * 0.6) + "s";
+          piece.style.setProperty("--drift", (Math.random() * 140 - 70) + "px");
+          piece.style.setProperty("--fall-distance", (height + 40 + Math.random() * 40) + "px");
+          confettiLayer.appendChild(piece);
+        }
+
+        window.setTimeout(function () {
+          confettiLayer.innerHTML = "";
+        }, 5600);
+      }
+
+      function showCelebration(menu) {
+        if (!celebrationBanner || !celebrationDesc) return;
+        celebrationDesc.textContent = `오늘 점심은 ${menu}입니다. 맛있게 드세요!`;
+        celebrationBanner.classList.add("show");
+        if (hasGsap()) {
+          gsap.fromTo(
+            celebrationBanner,
+            { y: 12, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.35, ease: "power2.out" }
+          );
+        }
+      }
+
+      function hideCelebration() {
+        if (!celebrationBanner) return;
+        celebrationBanner.classList.remove("show");
       }
 
       function spin() {
@@ -637,86 +684,37 @@
           resultValue.textContent = winner;
           resultDesc.textContent = `오늘 점심은 ${winner} 어떠세요?`;
           popResult();
-          launchConfetti();
+          launchEmojiRain();
           showCelebration(winner);
           setStatus("선택 완료");
           render();
         });
       }
 
-      function launchConfetti() {
-        if (!confettiLayer) return;
-        const emojis = ["🎉","✨","🍔","🍜","🍣","🍕","🥗","🌮","🍛","🍱","🍗","🍤","🍩","🥪","🍝"];
-        confettiLayer.innerHTML = "";
-
-        const box = confettiLayer.getBoundingClientRect();
-        const width = Math.max(box.width, 260);
-        const height = Math.max(box.height, 180);
-
-        for (let i = 0; i < 36; i += 1) {
-          const piece = document.createElement("span");
-          piece.className = "confetti-emoji";
-          piece.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-          piece.style.left = Math.random() * (width - 24) + "px";
-          piece.style.animationDuration = (2.6 + Math.random() * 2.4) + "s";
-          piece.style.animationDelay = (Math.random() * 0.6) + "s";
-          piece.style.setProperty("--drift", (Math.random() * 140 - 70) + "px");
-          piece.style.setProperty("--fall-distance", (height + 40 + Math.random() * 40) + "px");
-          confettiLayer.appendChild(piece);
-        }
-
-        window.setTimeout(function () {
-          confettiLayer.innerHTML = "";
-        }, 5600);
-      }`.trim();
-          piece.style.left = Math.random() * (width - 16) + "px";
-          piece.style.background = palette[Math.floor(Math.random() * palette.length)];
-          piece.style.animationDuration = (2.8 + Math.random() * 2.2) + "s";
-          piece.style.animationDelay = (Math.random() * 0.6) + "s";
-          piece.style.setProperty("--drift", (Math.random() * 120 - 60) + "px");
-          piece.style.setProperty("--fall-distance", (height + 36 + Math.random() * 30) + "px");
-          piece.style.opacity = "0";
-          confettiLayer.appendChild(piece);
-        }
-
-        window.setTimeout(function () {
-          confettiLayer.innerHTML = "";
-        }, 5600);
-      }
-
-      function showCelebration(menu) {
-        if (!celebrationBanner || !celebrationDesc) return;
-        celebrationDesc.textContent = `오늘 점심은 ${menu}입니다. 맛있게 드세요!`;
-        celebrationBanner.classList.add("show");
-        if (hasGsap()) {
-          gsap.fromTo(celebrationBanner, { y: 12, opacity: 0 }, { y: 0, opacity: 1, duration: 0.35, ease: "power2.out" });
-        } else {
-          celebrationBanner.style.opacity = "1";
-          celebrationBanner.style.transform = "translateY(0px)";
-        }
-      }
-
-      function hideCelebration() {
-        if (!celebrationBanner) return;
-        celebrationBanner.classList.remove("show");
-      }
-
       function runTests() {
         console.assert(normalize(725) === 5, "normalize test failed");
         console.assert(normalize(-90) === 270, "negative normalize test failed");
         console.assert(getWinnerIndex(0) >= 0, "winner index should be valid");
+        console.assert(!!document.getElementById("celebrationBanner"), "celebration banner should exist");
+        console.assert(!!document.getElementById("confettiLayer"), "confetti layer should exist");
+
+        const originalMenus = state.menus.slice();
         const before = state.menus.length;
         addMenu("김치찌개");
         console.assert(state.menus.length === before, "duplicate menu should not be added");
-        console.assert(!!document.getElementById("celebrationBanner"), "celebration banner should exist");
-        console.assert(!!document.getElementById("confettiLayer"), "confetti layer should exist");
-        launchConfetti();
+        state.menus = originalMenus;
+        render();
+
         hideCelebration();
+        showCelebration("테스트메뉴");
+        console.assert(celebrationBanner.classList.contains("show"), "celebration should show");
+        hideCelebration();
+        console.assert(!celebrationBanner.classList.contains("show"), "celebration should hide");
       }
 
       addBtn.addEventListener("click", function () { addMenu(); });
-      menuInput.addEventListener("keydown", function (e) {
-        if (e.key === "Enter") addMenu();
+      menuInput.addEventListener("keydown", function (event) {
+        if (event.key === "Enter") addMenu();
       });
       clearBtn.addEventListener("click", function () {
         if (state.spinning) return;
@@ -724,22 +722,19 @@
         state.lastPick = "";
         resultValue.textContent = "룰렛을 돌려보세요";
         resultDesc.textContent = "메뉴를 2개 이상 넣으면 룰렛을 돌릴 수 있어요.";
+        hideCelebration();
         setStatus("");
         render();
       });
       shuffleBtn.addEventListener("click", shuffleMenus);
       spinBtn.addEventListener("click", spin);
-      if (hideBannerBtn) {
-        hideBannerBtn.addEventListener("click", hideCelebration);
-      }
-      if (spinAgainBtn) {
-        spinAgainBtn.addEventListener("click", function () {
-          hideCelebration();
-          spin();
-        });
-      }
-      document.addEventListener("keydown", function (e) {
-        if (e.key === "Escape") hideCelebration();
+      hideBannerBtn.addEventListener("click", hideCelebration);
+      spinAgainBtn.addEventListener("click", function () {
+        hideCelebration();
+        spin();
+      });
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") hideCelebration();
       });
 
       load();
@@ -747,9 +742,7 @@
       render();
       runTests();
       setStatus(hasGsap() ? "준비 완료: GSAP 연결됨" : "준비 완료: 기본 애니메이션 사용");
-    })();
+    }());
   </script>
 </body>
 </html>
-
-
