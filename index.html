@@ -337,6 +337,20 @@
     </div>
   </div>
 
+  <div id="popupOverlay" class="popup-overlay" aria-hidden="true">
+    <div id="popupCard" class="popup" role="dialog" aria-modal="true" aria-labelledby="popupTitle">
+      <div class="popup-emoji">🎉</div>
+      <h3 id="popupTitle" class="popup-title">오늘 점심 결정!</h3>
+      <p id="popupDesc" class="popup-desc">결과가 여기에 표시됩니다.</p>
+      <div class="popup-actions">
+        <button id="spinAgainBtn" class="primary" type="button">한 번 더 돌리기</button>
+        <button id="closePopupBtn" class="secondary" type="button">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="confettiLayer" class="confetti-layer" aria-hidden="true"></div>
+
   <script>
     (function () {
       const quickMenus = ["김치찌개", "돈까스", "제육볶음", "쌀국수", "초밥", "파스타", "햄버거", "마라탕", "비빔밥", "국밥"];
@@ -602,12 +616,15 @@
           resultValue.textContent = winner;
           resultDesc.textContent = `오늘 점심은 ${winner} 어떠세요?`;
           popResult();
+          launchConfetti();
+          openPopup(winner);
           setStatus("선택 완료");
           render();
         });
       }
 
       function launchConfetti() {
+        if (!confettiLayer) return;
         const palette = ["#f97316", "#fb7185", "#38bdf8", "#22c55e", "#facc15", "#a78bfa"];
         confettiLayer.innerHTML = "";
         for (let i = 0; i < 90; i += 1) {
@@ -626,6 +643,7 @@
       }
 
       function openPopup(menu) {
+        if (!popupOverlay || !popupCard || !popupDesc) return;
         popupDesc.textContent = `오늘 점심은 ${menu}입니다. 맛있게 드세요!`;
         popupOverlay.classList.add("show");
         popupOverlay.setAttribute("aria-hidden", "false");
@@ -638,6 +656,7 @@
       }
 
       function closePopup() {
+        if (!popupOverlay) return;
         popupOverlay.classList.remove("show");
         popupOverlay.setAttribute("aria-hidden", "true");
       }
@@ -649,6 +668,8 @@
         const before = state.menus.length;
         addMenu("김치찌개");
         console.assert(state.menus.length === before, "duplicate menu should not be added");
+        console.assert(!!document.getElementById("popupOverlay"), "popup overlay should exist");
+        console.assert(!!document.getElementById("confettiLayer"), "confetti layer should exist");
         closePopup();
       }
 
@@ -667,6 +688,23 @@
       });
       shuffleBtn.addEventListener("click", shuffleMenus);
       spinBtn.addEventListener("click", spin);
+      if (closePopupBtn) {
+        closePopupBtn.addEventListener("click", closePopup);
+      }
+      if (spinAgainBtn) {
+        spinAgainBtn.addEventListener("click", function () {
+          closePopup();
+          spin();
+        });
+      }
+      if (popupOverlay) {
+        popupOverlay.addEventListener("click", function (e) {
+          if (e.target === popupOverlay) closePopup();
+        });
+      }
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") closePopup();
+      });
 
       load();
       renderQuickMenus();
