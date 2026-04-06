@@ -184,89 +184,100 @@
       border-radius: 20px;
       padding: 20px;
     }
-    .popup-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(17, 24, 39, 0.32);
+    .celebration-banner {
+      width: 100%;
       display: none;
       align-items: center;
-      justify-content: center;
-      z-index: 50;
-      padding: 20px;
+      justify-content: space-between;
+      gap: 16px;
+      background: linear-gradient(135deg, #fff7ed, #ffffff);
+      border: 1px solid #fdba74;
+      border-radius: 20px;
+      padding: 18px 20px;
+      box-shadow: 0 10px 24px rgba(249, 115, 22, 0.12);
     }
-    .popup-overlay.show {
+    .celebration-banner.show {
       display: flex;
     }
-    .popup {
-      width: min(420px, 100%);
-      background: white;
-      border: 1px solid #fdba74;
-      border-radius: 24px;
-      box-shadow: 0 18px 50px rgba(0,0,0,0.18);
-      padding: 24px;
-      text-align: center;
-      transform: scale(0.9);
-      opacity: 0;
+    .celebration-main {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
     }
-    .popup-emoji {
-      font-size: 42px;
-      margin-bottom: 8px;
+    .celebration-emoji {
+      font-size: 34px;
+      flex-shrink: 0;
     }
-    .popup-title {
-      margin: 0 0 10px;
-      font-size: 28px;
+    .celebration-text {
+      min-width: 0;
+    }
+    .celebration-title {
+      margin: 0 0 4px;
+      font-size: 22px;
       font-weight: 900;
     }
-    .popup-desc {
-      margin: 0 0 18px;
+    .celebration-desc {
+      margin: 0;
       color: #666;
       line-height: 1.5;
+      word-break: keep-all;
     }
-    .popup-actions {
+    .celebration-actions {
       display: flex;
       gap: 10px;
-      justify-content: center;
       flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .confetti-box {
+      position: relative;
+      width: 100%;
+      min-height: 180px;
+      border-radius: 22px;
+      overflow: hidden;
+      background: linear-gradient(180deg, rgba(255,247,237,0.95) 0%, rgba(255,255,255,0.9) 100%);
+      border: 1px dashed #fdba74;
     }
     .confetti-layer {
-      position: fixed;
+      position: absolute;
       inset: 0;
       pointer-events: none;
       overflow: hidden;
-      z-index: 60;
+      z-index: 2;
     }
-    .confetti-piece {
+    .confetti-emoji {
       position: absolute;
-      top: -20px;
-      width: 10px;
-      height: 16px;
+      top: -40px;
+      font-size: 22px;
       opacity: 0.95;
-      border-radius: 2px;
-      animation: confetti-fall linear forwards;
+      animation: emoji-fall linear forwards;
+      will-change: transform, opacity;
+      user-select: none;
     }
-    @keyframes confetti-fall {
+    @keyframes emoji-fall {
       0% {
-        transform: translate3d(0, 0, 0) rotate(0deg);
-        opacity: 1;
+        transform: translate3d(0, -10px, 0) rotate(0deg) scale(1);
+        opacity: 0;
+      }
+      10% { opacity: 1; }
+      50% {
+        transform: translate3d(calc(var(--drift, 0px) * 0.6), 80px, 0) rotate(180deg) scale(1);
       }
       100% {
-        transform: translate3d(var(--confetti-x, 0px), 110vh, 0) rotate(720deg);
+        transform: translate3d(var(--drift, 0px), var(--fall-distance, 200px), 0) rotate(360deg) scale(0.95);
         opacity: 0;
       }
     }
-    .result-label {
-      color: #777;
-      font-size: 14px;
-      margin-bottom: 8px;
-    }
-    .result-value {
-      font-size: 34px;
-      font-weight: 900;
-      margin: 0 0 8px;
-    }
-    .result-desc {
-      margin: 0;
-      color: #666;
+      10% {
+        opacity: 1;
+      }
+      50% {
+        transform: translate3d(calc(var(--drift, 0px) * 0.55), 70px, 0) rotate(220deg) scale(1);
+      }
+      100% {
+        transform: translate3d(var(--drift, 0px), var(--fall-distance, 180px), 0) rotate(540deg) scale(0.9);
+        opacity: 0;
+      }
     }
     .status {
       color: #666;
@@ -275,6 +286,14 @@
     }
     @media (max-width: 900px) {
       .layout { grid-template-columns: 1fr; }
+      .celebration-banner {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .celebration-actions {
+        width: 100%;
+        justify-content: flex-start;
+      }
     }
   </style>
 </head>
@@ -328,6 +347,23 @@
 
         <div id="status" class="status"></div>
 
+        <div class="confetti-box">
+          <div id="confettiLayer" class="confetti-layer" aria-hidden="true"></div>
+          <div id="celebrationBanner" class="celebration-banner" aria-live="polite" style="position:relative; z-index:3; margin:16px; width:calc(100% - 32px);">
+            <div class="celebration-main">
+              <div class="celebration-emoji">🎉</div>
+              <div class="celebration-text">
+                <h3 class="celebration-title">오늘 점심 결정!</h3>
+                <p id="celebrationDesc" class="celebration-desc">결과가 나오면 여기에 표시됩니다.</p>
+              </div>
+            </div>
+            <div class="celebration-actions">
+              <button id="spinAgainBtn" class="primary" type="button">한 번 더 돌리기</button>
+              <button id="hideBannerBtn" class="secondary" type="button">숨기기</button>
+            </div>
+          </div>
+        </div>
+
         <div class="result">
           <div class="result-label">오늘의 추천 메뉴</div>
           <h2 id="resultValue" class="result-value">룰렛을 돌려보세요</h2>
@@ -336,20 +372,6 @@
       </div>
     </div>
   </div>
-
-  <div id="popupOverlay" class="popup-overlay" aria-hidden="true">
-    <div id="popupCard" class="popup" role="dialog" aria-modal="true" aria-labelledby="popupTitle">
-      <div class="popup-emoji">🎉</div>
-      <h3 id="popupTitle" class="popup-title">오늘 점심 결정!</h3>
-      <p id="popupDesc" class="popup-desc">결과가 여기에 표시됩니다.</p>
-      <div class="popup-actions">
-        <button id="spinAgainBtn" class="primary" type="button">한 번 더 돌리기</button>
-        <button id="closePopupBtn" class="secondary" type="button">닫기</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="confettiLayer" class="confetti-layer" aria-hidden="true"></div>
 
   <script>
     (function () {
@@ -375,10 +397,9 @@
       const resultValue = document.getElementById("resultValue");
       const resultDesc = document.getElementById("resultDesc");
       const status = document.getElementById("status");
-      const popupOverlay = document.getElementById("popupOverlay");
-      const popupCard = document.getElementById("popupCard");
-      const popupDesc = document.getElementById("popupDesc");
-      const closePopupBtn = document.getElementById("closePopupBtn");
+      const celebrationBanner = document.getElementById("celebrationBanner");
+      const celebrationDesc = document.getElementById("celebrationDesc");
+      const hideBannerBtn = document.getElementById("hideBannerBtn");
       const spinAgainBtn = document.getElementById("spinAgainBtn");
       const confettiLayer = document.getElementById("confettiLayer");
       const canvas = document.getElementById("wheelCanvas");
@@ -617,7 +638,7 @@
           resultDesc.textContent = `오늘 점심은 ${winner} 어떠세요?`;
           popResult();
           launchConfetti();
-          openPopup(winner);
+          showCelebration(winner);
           setStatus("선택 완료");
           render();
         });
@@ -625,40 +646,59 @@
 
       function launchConfetti() {
         if (!confettiLayer) return;
-        const palette = ["#f97316", "#fb7185", "#38bdf8", "#22c55e", "#facc15", "#a78bfa"];
+        const emojis = ["🎉","✨","🍔","🍜","🍣","🍕","🥗","🌮","🍛","🍱","🍗","🍤","🍩","🥪","🍝"];
         confettiLayer.innerHTML = "";
-        for (let i = 0; i < 90; i += 1) {
-          const piece = document.createElement("div");
-          piece.className = "confetti-piece";
-          piece.style.left = Math.random() * 100 + "vw";
-          piece.style.background = palette[Math.floor(Math.random() * palette.length)];
-          piece.style.animationDuration = (2.2 + Math.random() * 1.6) + "s";
-          piece.style.animationDelay = (Math.random() * 0.25) + "s";
-          piece.style.setProperty("--confetti-x", (Math.random() * 220 - 110) + "px");
+
+        const box = confettiLayer.getBoundingClientRect();
+        const width = Math.max(box.width, 260);
+        const height = Math.max(box.height, 180);
+
+        for (let i = 0; i < 36; i += 1) {
+          const piece = document.createElement("span");
+          piece.className = "confetti-emoji";
+          piece.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+          piece.style.left = Math.random() * (width - 24) + "px";
+          piece.style.animationDuration = (2.6 + Math.random() * 2.4) + "s";
+          piece.style.animationDelay = (Math.random() * 0.6) + "s";
+          piece.style.setProperty("--drift", (Math.random() * 140 - 70) + "px");
+          piece.style.setProperty("--fall-distance", (height + 40 + Math.random() * 40) + "px");
           confettiLayer.appendChild(piece);
         }
+
         window.setTimeout(function () {
           confettiLayer.innerHTML = "";
-        }, 4200);
+        }, 5600);
+      }`.trim();
+          piece.style.left = Math.random() * (width - 16) + "px";
+          piece.style.background = palette[Math.floor(Math.random() * palette.length)];
+          piece.style.animationDuration = (2.8 + Math.random() * 2.2) + "s";
+          piece.style.animationDelay = (Math.random() * 0.6) + "s";
+          piece.style.setProperty("--drift", (Math.random() * 120 - 60) + "px");
+          piece.style.setProperty("--fall-distance", (height + 36 + Math.random() * 30) + "px");
+          piece.style.opacity = "0";
+          confettiLayer.appendChild(piece);
+        }
+
+        window.setTimeout(function () {
+          confettiLayer.innerHTML = "";
+        }, 5600);
       }
 
-      function openPopup(menu) {
-        if (!popupOverlay || !popupCard || !popupDesc) return;
-        popupDesc.textContent = `오늘 점심은 ${menu}입니다. 맛있게 드세요!`;
-        popupOverlay.classList.add("show");
-        popupOverlay.setAttribute("aria-hidden", "false");
+      function showCelebration(menu) {
+        if (!celebrationBanner || !celebrationDesc) return;
+        celebrationDesc.textContent = `오늘 점심은 ${menu}입니다. 맛있게 드세요!`;
+        celebrationBanner.classList.add("show");
         if (hasGsap()) {
-          gsap.fromTo(popupCard, { scale: 0.9, opacity: 0, y: 16 }, { scale: 1, opacity: 1, y: 0, duration: 0.35, ease: "back.out(1.7)" });
+          gsap.fromTo(celebrationBanner, { y: 12, opacity: 0 }, { y: 0, opacity: 1, duration: 0.35, ease: "power2.out" });
         } else {
-          popupCard.style.opacity = "1";
-          popupCard.style.transform = "scale(1)";
+          celebrationBanner.style.opacity = "1";
+          celebrationBanner.style.transform = "translateY(0px)";
         }
       }
 
-      function closePopup() {
-        if (!popupOverlay) return;
-        popupOverlay.classList.remove("show");
-        popupOverlay.setAttribute("aria-hidden", "true");
+      function hideCelebration() {
+        if (!celebrationBanner) return;
+        celebrationBanner.classList.remove("show");
       }
 
       function runTests() {
@@ -668,9 +708,10 @@
         const before = state.menus.length;
         addMenu("김치찌개");
         console.assert(state.menus.length === before, "duplicate menu should not be added");
-        console.assert(!!document.getElementById("popupOverlay"), "popup overlay should exist");
+        console.assert(!!document.getElementById("celebrationBanner"), "celebration banner should exist");
         console.assert(!!document.getElementById("confettiLayer"), "confetti layer should exist");
-        closePopup();
+        launchConfetti();
+        hideCelebration();
       }
 
       addBtn.addEventListener("click", function () { addMenu(); });
@@ -688,22 +729,17 @@
       });
       shuffleBtn.addEventListener("click", shuffleMenus);
       spinBtn.addEventListener("click", spin);
-      if (closePopupBtn) {
-        closePopupBtn.addEventListener("click", closePopup);
+      if (hideBannerBtn) {
+        hideBannerBtn.addEventListener("click", hideCelebration);
       }
       if (spinAgainBtn) {
         spinAgainBtn.addEventListener("click", function () {
-          closePopup();
+          hideCelebration();
           spin();
         });
       }
-      if (popupOverlay) {
-        popupOverlay.addEventListener("click", function (e) {
-          if (e.target === popupOverlay) closePopup();
-        });
-      }
       document.addEventListener("keydown", function (e) {
-        if (e.key === "Escape") closePopup();
+        if (e.key === "Escape") hideCelebration();
       });
 
       load();
@@ -715,3 +751,4 @@
   </script>
 </body>
 </html>
+
